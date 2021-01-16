@@ -41,6 +41,8 @@ data "aws_iam_policy_document" "readonly_access" {
 }
 
 data "aws_iam_policy_document" "write_access" {
+  count = var.allowed_write_principals != null ? 1 : 0
+
   statement {
     sid    = "ContainerRegistryWriteAccess"
     effect = "Allow"
@@ -55,11 +57,13 @@ data "aws_iam_policy_document" "write_access" {
 }
 
 data "aws_iam_policy_document" "access_policies" {
+  count = var.allowed_write_principals != null ? 1 : 0
+
   source_json   = data.aws_iam_policy_document.readonly_access.json
-  override_json = data.aws_iam_policy_document.write_access.json
+  override_json = data.aws_iam_policy_document.write_access[0].json
 }
 
 resource "aws_ecr_repository_policy" "repository_access_policy" {
-  policy     = data.aws_iam_policy_document.access_policies.json
+  policy     = var.allowed_write_principals != null ? data.aws_iam_policy_document.access_policies[0].json : data.aws_iam_policy_document.readonly_access.json
   repository = aws_ecr_repository.this.name
 }

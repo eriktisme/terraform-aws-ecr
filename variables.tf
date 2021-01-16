@@ -36,7 +36,7 @@ variable "allowed_read_principals" {
 variable "allowed_write_principals" {
   description = "Indicate who should have write access."
   type        = list(string)
-  default     = []
+  default     = null
 }
 
 variable "tags" {
